@@ -11,9 +11,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/BurntSushi/toml"
 	"github.com/dean2021/af/util/retry"
 	"github.com/dean2021/af/util/system"
-	"github.com/BurntSushi/toml"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -65,14 +65,14 @@ func register(agent *Agent) error {
 		return err
 	}
 
-	if resp.StatusCode != 200 {
-		return errors.New("接口返回状态码非200: " + resp.Status)
-	}
-
 	if resp.Body == nil {
 		return errors.New("接口返回内容为空")
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		return errors.New("接口返回状态码非200: " + resp.Status)
+	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
