@@ -4,6 +4,6 @@
 
 package af
 
-func SystemResourceLimit(pid int, cpuQuota int64, memory int64) error {
+func SystemResourceLimit(agent *Agent) error {
 	return nil
 }
