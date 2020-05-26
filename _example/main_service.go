@@ -47,7 +47,7 @@ func main() {
 		Description: "security agent for hids service",
 	}
 
-	s, err := af.NewService(config, agent)
+	s, err := af.NewSystemService(config, agent)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -7,6 +7,7 @@ package main
 import (
 	"github.com/dean2021/af"
 	"github.com/dean2021/af/_example/plugin"
+	"github.com/dean2021/af/_example/service"
 	"log"
 )
 
@@ -32,10 +33,15 @@ func main() {
 
 	// 用户自定义配置
 	agent.Config.Set("user.mysql", "mysql://127.0.0.1:3306")
+	agent.Config.Set("service.grpc.addr", "localhost:50001")
+
+	// 添加服务
+	af.AddService("grpc", new(service.DataService))
 
 	// 添加插件
 	agent.Plugin(new(plugin.TestPlugin))
 	agent.Plugin(new(plugin.TestPlugin2))
+	agent.Plugin(new(plugin.TestService))
 
 	// 运行agent
 	err := agent.Run()
