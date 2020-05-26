@@ -7,8 +7,8 @@
 package system
 
 import (
-	"SecurityAgent/pkg/util/array"
 	"errors"
+	"github.com/dean2021/af/util/array"
 	"strings"
 	"syscall"
 )

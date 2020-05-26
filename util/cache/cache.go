@@ -7,7 +7,7 @@
 package cache
 
 import (
-	"SecurityAgent/pkg/util"
+	"github.com/dean2021/af/util/file"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -61,7 +61,7 @@ func SetFileCache(cacheFilePath string, value string) error {
 		return err
 	}
 	cacheFileDir := filepath.Dir(cacheFilePath)
-	ok := util.PathExists(cacheFileDir)
+	ok := file.PathExists(cacheFileDir)
 	if !ok {
 		err = os.MkdirAll(cacheFileDir, 0666)
 		if err != nil {
@@ -73,7 +73,7 @@ func SetFileCache(cacheFilePath string, value string) error {
 
 // Read cache content from file
 func GetFileCache(cacheFilePath string) (string, bool, error) {
-	ok := util.PathExists(cacheFilePath)
+	ok := file.PathExists(cacheFilePath)
 	if !ok {
 		return "", false, nil
 	}
