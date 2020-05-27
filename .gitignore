@@ -4,3 +4,4 @@ build
 vendor
 go.sum
 *.toml
+*.log
