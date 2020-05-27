@@ -15,7 +15,6 @@ import (
 	"github.com/dean2021/af/util/retry"
 	"github.com/dean2021/af/util/system"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"os"
 	"time"
@@ -49,7 +48,7 @@ func register(agent *Agent) error {
 
 	jsonByte, err := json.Marshal(reqBody)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	// TODO 重写代理,用于调试接口
@@ -76,7 +75,7 @@ func register(agent *Agent) error {
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	serverResp := &struct {
@@ -88,7 +87,7 @@ func register(agent *Agent) error {
 
 	err = json.Unmarshal(body, serverResp)
 	if err != nil {
-		return errors.New("接口返回格式错误:" + err.Error())
+		return retry.Unrecoverable(fmt.Errorf("接口返回格式错误: %v", err))
 	}
 
 	if serverResp.Success == false || serverResp.Code != 200 {
@@ -100,40 +99,40 @@ func register(agent *Agent) error {
 }
 
 // 注册agent
-func Register(agentInfo *Agent) {
-	agentInfoFilePath := agentInfo.Config.Get("system.register.save_file")
-	_, err := toml.DecodeFile(agentInfoFilePath, agentInfo)
+func Register(agent *Agent) {
+	agentInfoFilePath := agent.Config.Get("system.register.save_file")
+	_, err := toml.DecodeFile(agentInfoFilePath, agent)
 	if err != nil && !os.IsNotExist(err) {
-		log.Fatal(err)
+		agent.logger.Fatal(err)
 	}
 
 	// 首次注册
 	if err != nil && os.IsNotExist(err) {
 
-		log.Println("开始注册agent...")
+		agent.logger.Println("开始注册agent...")
 		// 向服务端注册agent
 		err := retry.Do(
 			func() error {
-				return register(agentInfo)
+				return register(agent)
 			},
 			retry.Attempts(3),
 			retry.Delay(time.Second),
 			retry.LastErrorOnly(false),
 			retry.OnRetry(func(n uint, err error) {
-				log.Printf("Registration failed#%d: %s\n", n, err)
+				agent.logger.Printf("Registration failed#%d: %s\n", n, err)
 			}),
 		)
 		if err != nil {
-			log.Fatal(err)
+			agent.logger.Fatal(err)
 		}
 
 		// 注册成功后创建agent info文件
-		err = createAgentRegisterInfoFile(agentInfoFilePath, agentInfo)
+		err = createAgentRegisterInfoFile(agentInfoFilePath, agent)
 		if err != nil {
-			log.Fatalf("agent注册文件创建失败:%v", err)
+			agent.logger.Fatalf("agent注册文件创建失败:%v", err)
 		}
 
 		// TODO 注册成功,增加服务端通知
-		log.Println("注册成功, AgentID:" + agentInfo.ID + ", 存放文件: " + agentInfoFilePath)
+		agent.logger.Println("注册成功, AgentID:" + agent.ID + ", 存放文件: " + agentInfoFilePath)
 	}
 }

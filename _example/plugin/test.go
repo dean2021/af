@@ -19,7 +19,7 @@ func (tp *TestPlugin) Name() string {
 	return "testplugin"
 }
 
-func (tp *TestPlugin) Entry(config *af.Config) error {
+func (tp *TestPlugin) Entry(config *af.Config, logger af.Logger) error {
 	i := 0
 	for {
 		i++

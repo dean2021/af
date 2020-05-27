@@ -6,8 +6,10 @@ package main
 
 import (
 	"github.com/dean2021/af"
+	"github.com/dean2021/af/_example/logger"
 	"github.com/dean2021/af/_example/plugin"
 	"github.com/dean2021/af/_example/service"
+	"github.com/sirupsen/logrus"
 	"log"
 )
 
@@ -42,6 +44,13 @@ func main() {
 	agent.Plugin(new(plugin.TestPlugin))
 	agent.Plugin(new(plugin.TestPlugin2))
 	agent.Plugin(new(plugin.TestService))
+
+	// 替换日志组件
+	l := logrus.New()
+	l.SetFormatter(&logger.JSONFormatter{})
+	// 添加log hook
+	//l.AddHook(logger.NewHttpHook(logrus.AllLevels, &logger.JSONFormatter{}, "http://www.baidu.com/logserver"))
+	agent.SetLogger(l)
 
 	// 运行agent
 	err := agent.Run()

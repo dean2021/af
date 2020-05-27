@@ -19,7 +19,7 @@ func (tp *TestService) Name() string {
 	return "TestService"
 }
 
-func (tp *TestService) Entry(config *af.Config) error {
+func (tp *TestService) Entry(config *af.Config, logger af.Logger) error {
 
 	var s service.DataService
 	err := af.GetService("grpc", &s)

@@ -1,5 +1,5 @@
-// Copyright 2019 同程艺龙, Inc.
-// Authors: Dean.lu <dean.lu@ly.com>
+// Copyright 2019 Dean.
+// Authors: Dean.lu <dean@csoio.com>
 // Date: 2019/11/15 4:41 下午
 
 // 文件介绍

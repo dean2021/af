@@ -29,6 +29,9 @@ type Agent struct {
 	// agent配置
 	Config *Config `toml:"-"`
 
+	// 日志
+	logger Logger `toml:"-"`
+
 	// 插件关闭管理
 	cancel context.CancelFunc `toml:"-"`
 }
@@ -89,7 +92,7 @@ func (a *Agent) stopListen() error {
 // 停止
 func (a *Agent) Stop() error {
 	// TODO 停止agent前进行收尾，如记录日志
-	log.Println("agent停止")
+	a.logger.Println("agent停止")
 
 	os.Exit(0)
 	return nil
@@ -99,13 +102,16 @@ func (a *Agent) Stop() error {
 func (a *Agent) StartPlugin() {
 	for _, plugin := range a.plugins {
 		go func(p Plugin) {
-			log.Println(p.Name() + "插件被启动")
-			if err := p.Entry(a.Config); err != nil {
-				log.Fatalf("start plugin [%s] error: %s", p.Name(), err.Error())
+			a.logger.Println(p.Name() + "插件被启动")
+			if err := p.Entry(a.Config, a.logger); err != nil {
+				a.logger.Fatalf("start plugin [%s] error: %s", p.Name(), err.Error())
 			}
-			log.Println(p.Name() + "插件运行结束")
+			a.logger.Println(p.Name() + "插件运行结束")
 		}(plugin)
 	}
+}
+func (a *Agent) SetLogger(logger Logger) {
+	a.logger = logger
 }
 
 // 添加默认配置
@@ -128,6 +134,9 @@ func NewAgent(name string) *Agent {
 		plugins: make(map[string]Plugin),
 		Config:  new(Config),
 	}
+
+	// 默认日志
+	agent.SetLogger(log.New(os.Stdout, "", log.LstdFlags))
 
 	setDefaultConfig(agent)
 
