@@ -58,14 +58,14 @@ func SystemLoadMonitor(agent *Agent) {
 		return
 	}
 
-	sleepTime := time.Minute * 15
+	sleepTime := time.Minute
 	for {
 		avg, err := load.Avg()
 		if err != nil {
 			log.Fatal(err)
 		}
-		// cpu每个核平均负载(15分钟内)
-		avgCoreLoad := avg.Load15 / float64(runtime.NumCPU())
+		// cpu每个核平均负载(5分钟内)
+		avgCoreLoad := avg.Load5 / float64(runtime.NumCPU())
 		// 系统负载超过阈值, 则agent退出
 		if avgCoreLoad > maxLoadLimit {
 			log.Printf("系统负载过高(%v),已超过设定阈值(%v), agent退出", avgCoreLoad, maxLoadLimit)
