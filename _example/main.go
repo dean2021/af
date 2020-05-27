@@ -11,6 +11,8 @@ import (
 	"github.com/dean2021/af/_example/service"
 	"github.com/sirupsen/logrus"
 	"log"
+	"path"
+	"time"
 )
 
 func main() {
@@ -47,13 +49,20 @@ func main() {
 
 	// 替换日志组件
 	l := logrus.New()
+	// 设置日志格式
 	l.SetFormatter(&logger.JSONFormatter{})
-	// 添加log hook
-	//l.AddHook(logger.NewHttpHook(logrus.AllLevels, &logger.JSONFormatter{}, "http://www.baidu.com/logserver"))
+	// 添加log http hook
+	l.AddHook(logger.NewHttpHook(logrus.AllLevels, &logger.JSONFormatter{}, "http://www.baidu.com/logserver"))
+	// 添加log滚动文件切割hook
+	hook, err := logger.NewRotateHook(path.Join("./", "logs"), "debug.log", time.Hour*24, time.Second*60)
+	if err != nil {
+		panic(err)
+	}
+	l.AddHook(hook)
 	agent.SetLogger(l)
 
 	// 运行agent
-	err := agent.Run()
+	err = agent.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
