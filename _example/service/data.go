@@ -8,11 +8,9 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"github.com/dean2021/af"
 	pb "github.com/dean2021/af/_example/service/helloworld"
 	"google.golang.org/grpc"
-	"log"
 )
 
 type DataService struct {
@@ -28,13 +26,13 @@ func (ds *DataService) InitRPCService(config *af.Config) error {
 	return err
 }
 
-func (ds *DataService) SendMsg(data string) error {
-	fmt.Println("发送数据" + data)
+func (ds *DataService) SendMsg(data string, logger af.Logger) error {
+	logger.Println("发送数据" + data)
 	c := pb.NewGreeterClient(ds.conn)
 	r, err := c.SayHello(context.Background(), &pb.HelloRequest{Name: data})
 	if err != nil {
-		log.Fatalf("could not greet: %v", err)
+		logger.Fatalf("could not greet: %v", err)
 	}
-	log.Println(r.Message)
+	logger.Println(r.Message)
 	return nil
 }

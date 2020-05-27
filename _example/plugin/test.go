@@ -8,7 +8,6 @@ package plugin
 
 import (
 	"github.com/dean2021/af"
-	"log"
 	"strconv"
 	"time"
 )
@@ -24,7 +23,7 @@ func (tp *TestPlugin) Entry(config *af.Config, logger af.Logger) error {
 	for {
 		i++
 		config.Set("xxx", strconv.Itoa(i))
-		log.Printf("[%s]插件运行中...", tp.Name())
+		logger.Printf("[%s]插件运行中...", tp.Name())
 		time.Sleep(time.Second)
 	}
 	return nil

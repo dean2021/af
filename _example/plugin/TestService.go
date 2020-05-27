@@ -9,7 +9,6 @@ package plugin
 import (
 	"github.com/dean2021/af"
 	"github.com/dean2021/af/_example/service"
-	"log"
 	"time"
 )
 
@@ -24,17 +23,17 @@ func (tp *TestService) Entry(config *af.Config, logger af.Logger) error {
 	var s service.DataService
 	err := af.GetService("grpc", &s)
 	if err != nil {
-		log.Fatalf("加载服务失败")
+		logger.Fatalf("加载服务失败")
 	}
 
 	err = s.InitRPCService(config)
 	if err != nil {
-		log.Fatalf("服务初始化失败")
+		logger.Fatalf("服务初始化失败")
 	}
 
 	for {
-		_ = s.SendMsg("1111111")
-		log.Printf("[%s]插件运行中...", tp.Name())
+		_ = s.SendMsg("1111111", logger)
+		logger.Printf("[%s]插件运行中...", tp.Name())
 		time.Sleep(time.Second * 2)
 	}
 	return nil

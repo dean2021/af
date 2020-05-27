@@ -7,9 +7,7 @@
 package plugin
 
 import (
-	"fmt"
 	"github.com/dean2021/af"
-	"log"
 	"time"
 )
 
@@ -20,10 +18,10 @@ func (tp *TestPlugin2) Name() string {
 }
 
 func (tp *TestPlugin2) Entry(config *af.Config, logger af.Logger) error {
-	fmt.Println(tp.Name() + "读取配置" + config.Get("user.mysql"))
+	logger.Println(tp.Name() + "读取配置" + config.Get("user.mysql"))
 	for {
 		//fmt.Println(config.Get("xxx"))
-		log.Printf("[%s]插件运行中...", tp.Name())
+		logger.Printf("[%s]插件运行中...", tp.Name())
 		time.Sleep(time.Second)
 	}
 	return nil
