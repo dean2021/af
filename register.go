@@ -51,9 +51,7 @@ func register(agent *Agent) error {
 		return err
 	}
 
-	// TODO 重写代理,用于调试接口
 	client := &http.Client{}
-
 	req, err := http.NewRequest("POST", agent.Config.Get("system.register.api"), bytes.NewBuffer(jsonByte))
 	if err != nil {
 		return err
@@ -132,7 +130,6 @@ func Register(agent *Agent) {
 			agent.logger.Fatalf("agent注册文件创建失败:%v", err)
 		}
 
-		// TODO 注册成功,增加服务端通知
-		agent.logger.Println("注册成功, AgentID:" + agent.ID + ", 存放文件: " + agentInfoFilePath)
+		agent.logger.Println("注册成功, AgentID:" + agent.ID)
 	}
 }

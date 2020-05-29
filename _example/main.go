@@ -27,10 +27,10 @@ func main() {
 	agent.Config.Set("system.max_cpu_quota", "10000")
 
 	// 系统负载阈值, 超过此阈值测退出程序
-	agent.Config.Set("system.max_load_limit", "0.7")
+	agent.Config.Set("system.max_load_limit", "0.0")
 
 	// agent注册api
-	agent.Config.Set("system.register.api", "http://soc.qa.csoio.com/api/hostsecurity/agent/register")
+	agent.Config.Set("system.register.api", "http://soc.qa.17usoft.com/api/hostsecurity/agent/register")
 
 	// agent注册信息保存文件
 	agent.Config.Set("system.register.save_file", "./data.toml")

@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 type Agent struct {
@@ -61,20 +62,24 @@ func (a *Agent) Run() error {
 // 启动
 func (a *Agent) Start() error {
 
+	// 负载监控, 超过阈值, 则agent自杀退出,
+	SystemLoadCheck(a)
+	go func(agent *Agent) {
+		sleepTime := time.Minute
+		for {
+			SystemLoadCheck(a)
+			time.Sleep(sleepTime)
+		}
+	}(a)
+
 	// 资源限制
 	err := SystemResourceLimit(a)
 	if err != nil {
 		return errors.New("Unable to open system resource limit:" + err.Error())
 	}
 
-	// 负载监控, 超过阈值, 则agent自杀退出
-	go SystemLoadMonitor(a)
-
-	// TODO 性能指标上报，待实现
-
 	// 启动所有插件
 	a.StartPlugin()
-
 	return nil
 }
 
@@ -91,9 +96,8 @@ func (a *Agent) stopListen() error {
 
 // 停止
 func (a *Agent) Stop() error {
-	// TODO 停止agent前进行收尾，如记录日志
+	// 停止agent前进行收尾，如记录日志
 	a.logger.Println("agent停止")
-
 	os.Exit(0)
 	return nil
 }

@@ -11,7 +11,6 @@ import (
 	"github.com/shirou/gopsutil/load"
 	"runtime"
 	"strconv"
-	"time"
 )
 
 type program struct {
@@ -47,7 +46,7 @@ func NewSystemService(config *service.Config, agent *Agent) (service.Service, er
 }
 
 // 负载监控
-func SystemLoadMonitor(agent *Agent) {
+func SystemLoadCheck(agent *Agent) {
 
 	maxLoadLimit, err := strconv.ParseFloat(agent.Config.Get("system.max_load_limit"), 64)
 	if err != nil {
@@ -59,19 +58,15 @@ func SystemLoadMonitor(agent *Agent) {
 		return
 	}
 
-	sleepTime := time.Minute
-	for {
-		avg, err := load.Avg()
-		if err != nil {
-			agent.logger.Fatal(err)
-		}
-		// cpu每个核平均负载(5分钟内)
-		avgCoreLoad := avg.Load5 / float64(runtime.NumCPU())
-		// 系统负载超过阈值, 则agent退出
-		if avgCoreLoad > maxLoadLimit {
-			agent.logger.Printf("系统负载过高(%v),已超过设定阈值(%v), agent退出", avgCoreLoad, maxLoadLimit)
-			agent.Stop()
-		}
-		time.Sleep(sleepTime)
+	avg, err := load.Avg()
+	if err != nil {
+		agent.logger.Fatal(err)
+	}
+	// cpu每个核平均负载(5分钟内)
+	avgCoreLoad := avg.Load5 / float64(runtime.NumCPU())
+	// 系统负载超过阈值, 则agent退出
+	if avgCoreLoad > maxLoadLimit {
+		agent.logger.Printf("系统负载过高(%v),已超过设定阈值(%v), agent退出", avgCoreLoad, maxLoadLimit)
+		agent.Stop()
 	}
 }
