@@ -33,7 +33,7 @@ func main() {
 	agent.Config.Set("system.register.api", "http://soc.qa.17usoft.com/api/hostsecurity/agent/register")
 
 	// agent注册信息保存文件
-	agent.Config.Set("system.register.save_file", "/tmp/hs-agent/data.toml")
+	agent.Config.Set("system.register.save_file", "./data.toml")
 
 	// 用户自定义配置
 	agent.Config.Set("user.mysql", "mysql://127.0.0.1:3306")
