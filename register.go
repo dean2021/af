@@ -17,6 +17,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -98,15 +99,21 @@ func register(agent *Agent) error {
 
 // 注册agent
 func Register(agent *Agent) {
-	agentInfoFilePath := agent.Config.Get("system.register.save_file")
-	_, err := toml.DecodeFile(agentInfoFilePath, agent)
+	agentFilePath, err := filepath.Abs(agent.Config.Get("system.register.save_file"))
+	if err != nil {
+		agent.logger.Fatal(err)
+	}
+	err = os.MkdirAll(filepath.Dir(agentFilePath), os.ModePerm)
+	if err != nil {
+		agent.logger.Fatal(err)
+	}
+	_, err = toml.DecodeFile(agentFilePath, agent)
 	if err != nil && !os.IsNotExist(err) {
 		agent.logger.Fatal(err)
 	}
 
 	// 首次注册
 	if err != nil && os.IsNotExist(err) {
-
 		agent.logger.Println("开始注册agent...")
 		// 向服务端注册agent
 		err := retry.Do(
@@ -125,7 +132,7 @@ func Register(agent *Agent) {
 		}
 
 		// 注册成功后创建agent info文件
-		err = createAgentRegisterInfoFile(agentInfoFilePath, agent)
+		err = createAgentRegisterInfoFile(agentFilePath, agent)
 		if err != nil {
 			agent.logger.Fatalf("agent注册文件创建失败:%v", err)
 		}
