@@ -28,7 +28,7 @@ func main() {
 	// 系统负载阈值, 超过此阈值则退出程序
 	agent.Config.Set("system.max_load_limit", "0.7")
 
-	// 系统cpu使用率阈值，超过此阈值则
+	// 系统cpu使用率阈值，超过此阈值则自杀
 	agent.Config.Set("system.max_cpu_usage_limit", "80")
 
 	// agent注册api
