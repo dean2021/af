@@ -41,7 +41,7 @@ func NewSystemService(config *service.Config, agent *Agent) (service.Service, er
 	}
 	s, err := service.New(prg, config)
 	if err != nil {
-		return s, nil
+		return nil, err
 	}
 	return s, nil
 }
