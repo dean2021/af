@@ -8,7 +8,6 @@ import (
 	"github.com/dean2021/af"
 	"github.com/dean2021/af/_example/logger"
 	"github.com/dean2021/af/_example/plugin"
-	"github.com/dean2021/af/_example/service"
 	"github.com/sirupsen/logrus"
 	"log"
 	"path"
@@ -26,11 +25,14 @@ func main() {
 	// 限制10% CPU使用率
 	agent.Config.Set("system.max_cpu_quota", "10000")
 
-	// 系统负载阈值, 超过此阈值测退出程序
-	agent.Config.Set("system.max_load_limit", "0.8")
+	// 系统负载阈值, 超过此阈值则退出程序
+	agent.Config.Set("system.max_load_limit", "0.7")
+
+	// 系统cpu使用率阈值，超过此阈值则
+	agent.Config.Set("system.max_cpu_usage_limit", "80")
 
 	// agent注册api
-	agent.Config.Set("system.register.api", "http://soc.qa.17usoft.com/api/hostsecurity/agent/register")
+	agent.Config.Set("system.register.api", "http://soc.qa.csoio.com/api/hostsecurity/agent/register")
 
 	// agent注册信息保存文件
 	agent.Config.Set("system.register.save_file", "./data.toml")
@@ -40,12 +42,12 @@ func main() {
 	agent.Config.Set("service.grpc.addr", "localhost:50001")
 
 	// 添加服务
-	af.AddService("grpc", new(service.DataService))
+	//af.AddService("grpc", new(service.DataService))
 
 	// 添加插件
 	agent.Plugin(new(plugin.TestPlugin))
 	agent.Plugin(new(plugin.TestPlugin2))
-	agent.Plugin(new(plugin.TestService))
+	//agent.Plugin(new(plugin.TestService))
 
 	// 替换日志组件
 	l := logrus.New()

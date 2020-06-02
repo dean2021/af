@@ -72,6 +72,16 @@ func (a *Agent) Start() error {
 		}
 	}(a)
 
+	// 监控cpu使用率
+	SystemCpuUsageCheck(a)
+	go func(agent *Agent) {
+		sleepTime := time.Second * 5
+		for {
+			SystemCpuUsageCheck(a)
+			time.Sleep(sleepTime)
+		}
+	}(a)
+
 	// 资源限制
 	err := SystemResourceLimit(a)
 	if err != nil {
@@ -128,6 +138,8 @@ func setDefaultConfig(agent *Agent) {
 	agent.Config.Set("system.max_load_limit", "0.7")
 	// agent注册完信息保存文件路径
 	agent.Config.Set("system.register.save_file", "./data.toml")
+	// 系统cpu使用率阈值，超过此阈值则
+	agent.Config.Set("system.max_cpu_usage_limit", "80")
 }
 
 // 初始化

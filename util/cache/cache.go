@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strconv"
 	"sync"
 )
 
@@ -34,6 +35,21 @@ func Get(key string) (string, bool, error) {
 	}
 	value, has, err := GetFileCache(key)
 	return value, has, err
+}
+
+func GetFloat64(key string) (float64, bool, error) {
+	value, has, err := Get(key)
+	if err != nil {
+		return 0, false, err
+	}
+	var v float64
+	if has {
+		v, err = strconv.ParseFloat(value, 64)
+		if err != nil {
+			return 0, false, err
+		}
+	}
+	return v, true, nil
 }
 
 // Write cache connect to memory

@@ -24,8 +24,20 @@ func TestGetCache(t *testing.T) {
 
 func TestSetCache(t *testing.T) {
 	key := "/tmp/xxxxx"
-	err := SetCache(key, "xx1111")
+	err := SetCache(key, "0.7")
 	if err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestGetFloat64(t *testing.T) {
+	key := "/tmp/xxxxx"
+	value, has, err := GetFloat64(key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !has {
+		t.Log("缓存内容为空")
+	}
+	t.Log(value)
 }
