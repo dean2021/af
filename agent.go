@@ -2,7 +2,7 @@
 // Authors: Dean <dean@csoio.com>
 // Date: 2020/5/20 2:53 下午
 
-// 文件介绍
+// agent框架主入口
 
 package af
 
@@ -118,7 +118,7 @@ func (a *Agent) StartPlugin() {
 		go func(p Plugin) {
 			a.logger.Println(p.Name() + "插件被启动")
 			if err := p.Entry(a.Config, a.logger); err != nil {
-				a.logger.Fatalf("start plugin [%s] error: %s", p.Name(), err.Error())
+				a.logger.Fatalf("[%s]插件返回错误: %s", p.Name(), err.Error())
 			}
 			a.logger.Println(p.Name() + "插件运行结束")
 		}(plugin)
