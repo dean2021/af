@@ -86,11 +86,11 @@ func register(agent *Agent) error {
 
 	err = json.Unmarshal(body, serverResp)
 	if err != nil {
-		return retry.Unrecoverable(fmt.Errorf("接口返回格式错误: %v", err))
+		return fmt.Errorf("接口返回格式错误: %v", err)
 	}
 
 	if serverResp.Success == false || serverResp.Code != 200 {
-		return errors.New(fmt.Sprintf("接口返回错误提示:%s", serverResp.Message))
+		return fmt.Errorf("接口返回错误提示:%s", serverResp.Message)
 	}
 
 	agent.ID = serverResp.Result.Id
