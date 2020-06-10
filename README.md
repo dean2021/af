@@ -9,7 +9,7 @@
 4. system.register.api ： agent注册api地址, 必填
 5. system.register.save_file : agent注册完信息保存文件路径, 默认：存放到当前目录下data.toml文件中
 6. system.max_cpu_usage_limit : 设置cpu使用率自杀阈值，默认80(%)
-
+7. system.cgroup_enable ： 是否启用cgroup, 默认启用, 参数 on/off
 ### 框架使用
 
 main.go 
