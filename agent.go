@@ -50,6 +50,10 @@ func (a *Agent) Run() error {
 	// 注册agent检查
 	Register(a)
 
+	// 注入内部配置
+	a.Config.Set("system.agent.id", a.ID)
+	a.Config.Set("system.agent.name", a.Name)
+
 	// 启动agent
 	err := a.Start()
 	if err != nil {

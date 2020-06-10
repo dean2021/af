@@ -19,6 +19,9 @@ func (tp *TestPlugin) Name() string {
 }
 
 func (tp *TestPlugin) Entry(config *af.Config, logger af.Logger) error {
+
+	logger.Println(config.Get("system.agent.id"))
+
 	i := 0
 	for {
 		i++
