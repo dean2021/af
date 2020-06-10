@@ -10,6 +10,16 @@
 5. system.register.save_file : agent注册完信息保存文件路径, 默认：存放到当前目录下data.toml文件中
 6. system.max_cpu_usage_limit : 设置cpu使用率自杀阈值，默认80(%)
 7. system.cgroup_enable ： 是否启用cgroup, 默认启用, 参数 on/off
+
+### 稳定性
+
+| 控制        | windows   |  linux  |
+| --------   | -----:  | :----:  |
+|负载监控      | 无   |   有     |
+| 资源限制（cpu/memory）         |  无   |   有   |
+| CPU使用率        |    有    |  有  |
+
+
 ### 框架使用
 
 main.go 
