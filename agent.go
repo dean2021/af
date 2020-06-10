@@ -77,7 +77,6 @@ func (a *Agent) Start() error {
 	}(a)
 
 	// 监控cpu使用率
-	SystemCpuUsageCheck(a)
 	go func(agent *Agent) {
 		sleepTime := time.Second * 5
 		for {
