@@ -50,7 +50,7 @@ func main() {
 	agent.Config.Set("system.max_cpu_usage_limit", "80")
 
 	// agent注册api
-	agent.Config.Set("system.register.api", "http://soc.qa.17usoft.com/api/hostsecurity/agent/register")
+	agent.Config.Set("system.register.api", "http://soc.qa.csoio.com/api/hostsecurity/agent/register")
 
 	// agent注册信息保存文件
 	agent.Config.Set("system.register.save_file", "./data.toml")
