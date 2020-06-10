@@ -19,6 +19,9 @@ func main() {
 	// 新建一个agent
 	agent := af.NewAgent("hs-agent")
 
+	// 是否启用cgroup, 默认启用, 参数 on/off
+	agent.Config.Set("system.cgroup_enable", "on")
+
 	// 限制100M内存
 	agent.Config.Set("system.max_memory", "104857600")
 

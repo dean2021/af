@@ -140,6 +140,8 @@ func setDefaultConfig(agent *Agent) {
 	agent.Config.Set("system.register.save_file", "./data.toml")
 	// 系统cpu使用率阈值，超过此阈值则
 	agent.Config.Set("system.max_cpu_usage_limit", "80")
+	// 是否启用cgroup, 默认启用, 参数 on/off
+	agent.Config.Set("system.cgroup_enable", "on")
 }
 
 // 初始化

@@ -8,8 +8,8 @@ package af
 
 import (
 	"fmt"
-	"github.com/dean2021/af/util/file"
 	"github.com/containerd/cgroups"
+	"github.com/dean2021/af/util/file"
 	"github.com/opencontainers/runtime-spec/specs-go"
 	"os"
 	"path"
@@ -60,6 +60,11 @@ func mountCgroupFileSystem() error {
 
 // 根据进程添加资源限制
 func SystemResourceLimit(agent *Agent) error {
+
+	// 检查cgroup限制
+	if agent.Config.Get("system.cgroup_enable") == "off" {
+		return nil
+	}
 
 	maxCPUQuota, err := strconv.ParseInt(agent.Config.Get("system.max_cpu_quota"), 10, 64)
 	if err != nil {
