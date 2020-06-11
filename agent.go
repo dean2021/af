@@ -80,8 +80,8 @@ func (a *Agent) Start() error {
 	go func(agent *Agent) {
 		sleepTime := time.Second * 5
 		for {
-			SystemCpuUsageCheck(a)
 			time.Sleep(sleepTime)
+			SystemCpuUsageCheck(a)
 		}
 	}(a)
 
