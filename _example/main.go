@@ -35,7 +35,7 @@ func main() {
 	agent.Config.Set("system.max_cpu_usage_limit", "80")
 
 	// agent注册api
-	agent.Config.Set("system.register.api", "http://soc.test.csoio.com/api/hostsecurity/agent/register")
+	agent.Config.Set("system.register.api", "http://www.baidu.com/api/hostsecurity/agent/register")
 
 	// agent注册信息保存文件
 	agent.Config.Set("system.register.save_file", "./data.toml")
@@ -57,7 +57,7 @@ func main() {
 	// 设置日志格式
 	l.SetFormatter(&logger.JSONFormatter{})
 	// 添加log http hook
-	l.AddHook(logger.NewHttpHook(logrus.AllLevels, &logger.JSONFormatter{}, "http://soc.test.csoio.com/api/hostsecurity/agentLog/add"))
+	l.AddHook(logger.NewHttpHook(logrus.AllLevels, &logger.JSONFormatter{}, "http://www.baidu.com/api/hostsecurity/agentLog/add"))
 	// 添加log滚动文件切割hook
 	hook, err := logger.NewRotateHook(path.Join("./", "logs"), "debug.log", time.Hour*24, time.Second*60)
 	if err != nil {

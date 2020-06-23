@@ -98,23 +98,23 @@ func register(agent *Agent) error {
 }
 
 // 注册agent
-func Register(agent *Agent) {
+func Register(agent *Agent) error {
 	agentFilePath, err := filepath.Abs(agent.Config.Get("system.register.save_file"))
 	if err != nil {
-		agent.logger.Fatal(err)
+		return err
 	}
 	err = os.MkdirAll(filepath.Dir(agentFilePath), os.ModePerm)
 	if err != nil {
-		agent.logger.Fatal(err)
+		return err
 	}
 	_, err = toml.DecodeFile(agentFilePath, agent)
 	if err != nil && !os.IsNotExist(err) {
-		agent.logger.Fatal(err)
+		return err
 	}
 
 	// 首次注册
 	if err != nil && os.IsNotExist(err) {
-		agent.logger.Println("开始注册agent...")
+
 		// 向服务端注册agent
 		err := retry.Do(
 			func() error {
@@ -128,15 +128,10 @@ func Register(agent *Agent) {
 			}),
 		)
 		if err != nil {
-			agent.logger.Fatal(err)
+			return err
 		}
-
 		// 注册成功后创建agent info文件
-		err = createAgentRegisterInfoFile(agentFilePath, agent)
-		if err != nil {
-			agent.logger.Fatalf("agent注册文件创建失败:%v", err)
-		}
-
-		agent.logger.Println("注册成功, AgentID:" + agent.ID)
+		return createAgentRegisterInfoFile(agentFilePath, agent)
 	}
+	return nil
 }

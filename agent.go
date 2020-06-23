@@ -9,6 +9,7 @@ package af
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -48,14 +49,17 @@ func (a *Agent) Plugin(plugin Plugin) {
 func (a *Agent) Run() error {
 
 	// 注册agent检查
-	Register(a)
+	err := Register(a)
+	if err != nil {
+		return fmt.Errorf("failed to register agent: %v", err)
+	}
 
 	// 注入内部配置
 	a.Config.Set("system.agent.id", a.ID)
 	a.Config.Set("system.agent.name", a.Name)
 
 	// 启动agent
-	err := a.Start()
+	err = a.Start()
 	if err != nil {
 		return err
 	}
