@@ -5,3 +5,5 @@ vendor
 go.sum
 *.toml
 *.log
+_test
+logs

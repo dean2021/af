@@ -17,6 +17,8 @@ import (
 	"time"
 )
 
+const Version = "2.0.1"
+
 type Agent struct {
 
 	// 唯一ID
@@ -54,9 +56,18 @@ func (a *Agent) Run() error {
 		return fmt.Errorf("failed to register agent: %v", err)
 	}
 
-	// 注入内部配置
+	// 注入系统配置
 	a.Config.Set("system.agent.id", a.ID)
 	a.Config.Set("system.agent.name", a.Name)
+
+	// 启用etcd作为动态配置组件
+	if a.Config.Get("system.etcd.enable") == "on" {
+		remoteConfig, err := NewRemoteConfig(a)
+		if err != nil {
+			return err
+		}
+		a.Config.remoteConfig = remoteConfig
+	}
 
 	// 启动agent
 	err = a.Start()
@@ -149,6 +160,23 @@ func setDefaultConfig(agent *Agent) {
 	agent.Config.Set("system.max_cpu_usage_limit", "80")
 	// 是否启用cgroup, 默认启用, 参数 on/off
 	agent.Config.Set("system.cgroup_enable", "on")
+
+	// 是否启用etcd, 默认不启用, 参数 on/off
+	agent.Config.Set("system.etcd.enable", "off")
+	// etcd节点地址，多个用逗号隔开
+	agent.Config.Set("system.etcd.endpoints", "127.0.0.1:2379,127.0.0.1:2378")
+	// etcd连接超时时间
+	agent.Config.Set("system.etcd.dial_timeout", "30")
+	// AutoSyncInterval is the interval to update endpoints with its latest members.
+	// 0 disables auto-sync. By default auto-sync is disabled.
+	agent.Config.Set("system.etcd.auto_sync_interval", "0")
+	// etcd连接账号
+	agent.Config.Set("system.etcd.username", "")
+	// etcd连接密码
+	agent.Config.Set("system.etcd.password", "")
+	// 命名空间, 防止和其他应用的path冲突
+	agent.Config.Set("system.etcd.namespace", "af")
+
 }
 
 // 初始化

@@ -44,6 +44,22 @@ func main() {
 	agent.Config.Set("user.mysql", "mysql://127.0.0.1:3306")
 	agent.Config.Set("service.grpc.addr", "localhost:50001")
 
+	// 启动etcd
+	agent.Config.Set("system.etcd.enable", "on")
+
+	// etcd连接设置
+	agent.Config.Set("system.etcd.endpoints", "127.0.0.1:2379")
+	agent.Config.Set("system.etcd.dial_timeout", "5s")
+	// AutoSyncInterval is the interval to update endpoints with its latest members.
+	// 0 disables auto-sync. By default auto-sync is disabled.
+	agent.Config.Set("system.etcd.auto_sync_interval", "5m0s")
+	// etcd连接账号
+	agent.Config.Set("system.etcd.username", "")
+	// etcd连接密码
+	agent.Config.Set("system.etcd.password", "")
+	// 命名空间, 防止和其他应用的path冲突
+	agent.Config.Set("system.etcd.namespace", "af")
+
 	// 添加服务
 	//af.AddService("grpc", new(service.DataService))
 
