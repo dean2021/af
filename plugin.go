@@ -12,5 +12,5 @@ type Plugin interface {
 	Name() string
 
 	// 插件入口函数
-	Entry(config *Config, logger Logger) error
+	Entry(config *Config, notify *Notify, logger Logger) error
 }

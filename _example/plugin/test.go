@@ -7,8 +7,8 @@
 package plugin
 
 import (
+	"fmt"
 	"github.com/dean2021/af"
-	"strconv"
 	"time"
 )
 
@@ -18,16 +18,26 @@ func (tp *TestPlugin) Name() string {
 	return "testplugin"
 }
 
-func (tp *TestPlugin) Entry(config *af.Config, logger af.Logger) error {
+func (tp *TestPlugin) Entry(config *af.Config, notify *af.Notify, logger af.Logger) error {
 
-	logger.Println(config.Get("system.agent.id"))
+	// 获取指令
+	go notify.WatchCommand(tp.Name(), func(command af.Command) {
+		fmt.Println("[COMMAND] 指令名:", command.Name, "指令内容:", command.Body)
+	})
 
-	i := 0
-	for {
-		i++
-		config.Set("xxx", strconv.Itoa(i))
-		logger.Printf("[%s]插件运行中...", tp.Name())
-		time.Sleep(time.Second)
+	// 监听配置变更
+	go notify.WatchConfig(tp.Name(), func(value string) {
+		fmt.Println("[CONFIG] ", value)
+	})
+
+	// 直接获取配置
+	keyVal, err := notify.GetConfig(tp.Name())
+	if err == nil {
+		fmt.Println("获取到配置:", keyVal)
 	}
-	return nil
+
+	for {
+		logger.Printf("[%s]插件运行中...", tp.Name())
+		time.Sleep(time.Second * 5)
+	}
 }

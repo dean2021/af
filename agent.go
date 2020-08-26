@@ -10,32 +10,30 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"go.etcd.io/etcd/clientv3"
 	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 )
 
-const Version = "2.0.1"
+const Version = "2.0.2"
 
 type Agent struct {
-
 	// 唯一ID
 	ID string `toml:"id"`
-
 	// Agent名称
 	Name string `toml:"name"`
-
 	// 插件
 	plugins map[string]Plugin `toml:"-"`
-
 	// agent配置
 	Config *Config `toml:"-"`
-
-	// 日志
+	// 通讯管道
+	Notify *Notify `toml:"-"`
+	// 统一日志
 	logger Logger `toml:"-"`
-
 	// 插件关闭管理
 	cancel context.CancelFunc `toml:"-"`
 }
@@ -60,13 +58,32 @@ func (a *Agent) Run() error {
 	a.Config.Set("system.agent.id", a.ID)
 	a.Config.Set("system.agent.name", a.Name)
 
-	// 启用etcd作为动态配置组件
+	// 启用etcd作为远程通讯管道
 	if a.Config.Get("system.etcd.enable") == "on" {
-		remoteConfig, err := NewRemoteConfig(a)
+		namespace := a.Config.Get("system.etcd.namespace")
+		endpoints := a.Config.Get("system.etcd.endpoints")
+		username := a.Config.Get("system.etcd.username")
+		password := a.Config.Get("system.etcd.password")
+		dialTimeout, err := time.ParseDuration(a.Config.Get("system.etcd.dial_timeout"))
 		if err != nil {
 			return err
 		}
-		a.Config.remoteConfig = remoteConfig
+		autoSyncInterval, err := time.ParseDuration(a.Config.Get("system.etcd.auto_sync_interval"))
+		if err != nil {
+			return err
+		}
+		cfg := clientv3.Config{
+			Endpoints:        strings.Split(endpoints, ","),
+			DialTimeout:      dialTimeout,
+			AutoSyncInterval: autoSyncInterval,
+			Username:         username,
+			Password:         password,
+		}
+		client, err := clientv3.New(cfg)
+		if err != nil {
+			return err
+		}
+		a.Notify = NewNotify(namespace, a.ID, client)
 	}
 
 	// 启动agent
@@ -135,7 +152,7 @@ func (a *Agent) StartPlugin() {
 	for _, plugin := range a.plugins {
 		go func(p Plugin) {
 			a.logger.Println(p.Name() + "插件被启动")
-			if err := p.Entry(a.Config, a.logger); err != nil {
+			if err := p.Entry(a.Config, a.Notify, a.logger); err != nil {
 				a.logger.Fatalf("[%s]插件返回错误: %s", p.Name(), err.Error())
 			}
 			a.logger.Println(p.Name() + "插件运行结束")

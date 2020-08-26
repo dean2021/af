@@ -65,7 +65,6 @@ func main() {
 
 	// 添加插件
 	agent.Plugin(new(plugin.TestPlugin))
-	agent.Plugin(new(plugin.TestPlugin2))
 	//agent.Plugin(new(plugin.TestService))
 
 	// 替换日志组件
