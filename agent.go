@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-const Version = "2.0.3"
+const Version = "2.0.4"
 
 type Agent struct {
 	// 唯一ID
@@ -124,7 +124,9 @@ func (a *Agent) Start() error {
 	}
 
 	// 启动插件远程通信监听
-	go a.StartPluginWatch()
+	if a.Config.Get("system.etcd.enable") == "on" {
+		go a.StartPluginWatch()
+	}
 
 	// 启动所有插件
 	a.StartPlugin()
