@@ -12,21 +12,21 @@ import (
 	"time"
 )
 
-type TestPlugin struct{}
+type TestPlugin2 struct{}
 
-func (tp *TestPlugin) Name() string {
-	return "testplugin"
+func (tp *TestPlugin2) Name() string {
+	return "testplugin2"
 }
 
-func (tp *TestPlugin) Command(name string, body string) {
+func (tp *TestPlugin2) Command(name string, body string) {
 	fmt.Println("[COMMAND] 指令名:", name, "指令内容:", body)
 }
 
-func (tp *TestPlugin) Config(body string) {
+func (tp *TestPlugin2) Config(body string) {
 	fmt.Println("[CONFIG] ", body)
 }
 
-func (tp *TestPlugin) Entry(config *af.Config, notify *af.Notify, logger af.Logger) error {
+func (tp *TestPlugin2) Entry(config *af.Config, notify *af.Notify, logger af.Logger) error {
 	// 直接获取配置
 	cfg, err := notify.GetConfig(tp.Name())
 	if err == nil {

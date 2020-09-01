@@ -13,8 +13,12 @@ import (
 	"go.etcd.io/etcd/clientv3"
 	"log"
 	"strconv"
-	"strings"
 	"time"
+)
+
+const (
+	COMMAND = "command"
+	CONFIG  = "config"
 )
 
 type Notify struct {
@@ -28,17 +32,10 @@ type Notify struct {
 	uuid string
 }
 
-type Command struct {
-	Name string
-	Body string
-}
-type CommandHandleFunc func(command Command)
-type ConfigHandleFunc func(value string)
-
 // 监听指令
-// 路径设计： /hs/uuid-xxx/plugin-xxx/command/指令名
-func (n *Notify) WatchCommand(pluginName string, commandHandleFunc CommandHandleFunc) {
-	path := fmt.Sprintf("/%s/%s/%s/command/", n.namespace, n.uuid, pluginName)
+// 路径设计：/hs/uuid-xxx
+func (n *Notify) Watch(ReceiveHandle func(path string, value string)) {
+	path := fmt.Sprintf("/%s/%s/system", n.namespace, n.uuid)
 	log.Println("监听:", path)
 	for {
 		v, err := n.getRevision()
@@ -52,43 +49,7 @@ func (n *Notify) WatchCommand(pluginName string, commandHandleFunc CommandHandle
 						continue
 					}
 					if ev.Type == clientv3.EventTypePut {
-						log.Println("发现命令")
-						p := strings.Split(string(ev.Kv.Key), "/")
-						if len(p) >= 4 {
-							commandHandleFunc(Command{
-								Name: p[5],
-								Body: string(ev.Kv.Value),
-							})
-						}
-					}
-				}
-			}
-		} else {
-			log.Println(err)
-		}
-		// TODO 重试时间待优化, 改成backoff
-		time.Sleep(time.Second)
-	}
-}
-
-// 监听配置变更
-// 路径设计： /hs/uuid-xxx/plugin-xxx/config
-func (n *Notify) WatchConfig(pluginName string, configHandleFunc ConfigHandleFunc) {
-	path := fmt.Sprintf("/%s/%s/%s/config", n.namespace, n.uuid, pluginName)
-	log.Println("监听:", path)
-	for {
-		version, err := n.getRevision()
-		if err == nil {
-			rch := n.client.Watch(n.context, path, clientv3.WithPrefix(), clientv3.WithRev(version))
-			for wResp := range rch {
-				for _, ev := range wResp.Events {
-					err := n.setRevision(ev.Kv.ModRevision + 1)
-					if err != nil {
-						log.Println(err)
-						continue
-					}
-					if ev.Type == clientv3.EventTypePut {
-						configHandleFunc(string(ev.Kv.Value))
+						ReceiveHandle(string(ev.Kv.Key), string(ev.Kv.Value))
 					}
 				}
 			}
@@ -104,7 +65,7 @@ func (n *Notify) WatchConfig(pluginName string, configHandleFunc ConfigHandleFun
 // 路径设计： /hs/uuid-xxx/plugin-xxx/config
 func (n *Notify) GetConfig(pluginName string) (string, error) {
 	var value string
-	path := fmt.Sprintf("/%s/%s/%s/config", n.namespace, n.uuid, pluginName)
+	path := fmt.Sprintf("/%s/%s/system/%s/config", n.namespace, n.uuid, pluginName)
 	resp, err := n.client.Get(n.context, path, clientv3.WithPrefix())
 	if err != nil {
 		return "", err

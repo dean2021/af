@@ -19,7 +19,7 @@ import (
 	"time"
 )
 
-const Version = "2.0.2"
+const Version = "2.0.3"
 
 type Agent struct {
 	// 唯一ID
@@ -123,6 +123,9 @@ func (a *Agent) Start() error {
 		return errors.New("Unable to open system resource limit:" + err.Error())
 	}
 
+	// 启动插件远程通信监听
+	go a.StartPluginWatch()
+
 	// 启动所有插件
 	a.StartPlugin()
 	return nil
@@ -139,12 +142,37 @@ func (a *Agent) stopListen() error {
 	return a.Stop()
 }
 
-// 停止
+// 停止agent
 func (a *Agent) Stop() error {
 	// 停止agent前进行收尾，如记录日志
 	a.logger.Println("agent停止")
 	os.Exit(0)
 	return nil
+}
+
+// 启动插件指令监控
+// 支持配置变更及命令通知
+func (a *Agent) StartPluginWatch() {
+	a.Notify.Watch(func(path string, value string) {
+		p := strings.Split(path, "/")
+		if len(p) >= 2 {
+			pluginName := p[4]
+			action := p[5]
+			switch action {
+			case COMMAND:
+				if plugin, ok := a.plugins[pluginName]; ok {
+					name := p[6]
+					plugin.Command(name, value)
+				}
+			case CONFIG:
+				if plugin, ok := a.plugins[pluginName]; ok {
+					plugin.Config(value)
+				}
+			default:
+				log.Println("无效指令")
+			}
+		}
+	})
 }
 
 // 启动所有插件
