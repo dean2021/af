@@ -15,7 +15,7 @@ import (
 type TestPlugin2 struct{}
 
 func (tp *TestPlugin2) Name() string {
-	return "testplugin2"
+	return "baseline"
 }
 
 func (tp *TestPlugin2) Command(name string, body string) {
