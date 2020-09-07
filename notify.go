@@ -16,11 +16,6 @@ import (
 	"time"
 )
 
-const (
-	COMMAND = "command"
-	CONFIG  = "config"
-)
-
 type Notify struct {
 	// ETcd 命名空间
 	namespace string
@@ -62,10 +57,10 @@ func (n *Notify) Watch(ReceiveHandle func(path string, value string)) {
 }
 
 // 获取配置信息
-// 路径设计： /hs/uuid-xxx/plugin-xxx/config
+// 路径设计： /hs/uuid-xxx/system/plugin-xxx/command/config
 func (n *Notify) GetConfig(pluginName string) (string, error) {
 	var value string
-	path := fmt.Sprintf("/%s/%s/system/%s/config", n.namespace, n.uuid, pluginName)
+	path := fmt.Sprintf("/%s/%s/system/%s/command/config", n.namespace, n.uuid, pluginName)
 	resp, err := n.client.Get(n.context, path, clientv3.WithPrefix())
 	if err != nil {
 		return "", err

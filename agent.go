@@ -19,8 +19,6 @@ import (
 	"time"
 )
 
-const Version = "2.0.4"
-
 type Agent struct {
 	// 唯一ID
 	ID string `toml:"id"`
@@ -125,7 +123,7 @@ func (a *Agent) Start() error {
 
 	// 启动插件远程通信监听
 	if a.Config.Get("system.etcd.enable") == "on" {
-		go a.StartPluginWatch()
+		go a.StartCommandWatch()
 	}
 
 	// 启动所有插件
@@ -154,24 +152,14 @@ func (a *Agent) Stop() error {
 
 // 启动插件指令监控
 // 支持配置变更及命令通知
-func (a *Agent) StartPluginWatch() {
+func (a *Agent) StartCommandWatch() {
 	a.Notify.Watch(func(path string, value string) {
 		p := strings.Split(path, "/")
 		if len(p) >= 2 {
 			pluginName := p[4]
-			action := p[5]
-			switch action {
-			case COMMAND:
-				if plugin, ok := a.plugins[pluginName]; ok {
-					name := p[6]
-					plugin.Command(name, value)
-				}
-			case CONFIG:
-				if plugin, ok := a.plugins[pluginName]; ok {
-					plugin.Config(value)
-				}
-			default:
-				log.Println("无效指令")
+			if plugin, ok := a.plugins[pluginName]; ok {
+				name := p[6]
+				plugin.Command(name, value)
 			}
 		}
 	})

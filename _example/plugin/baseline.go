@@ -22,10 +22,6 @@ func (tp *TestPlugin2) Command(name string, body string) {
 	fmt.Println("[COMMAND] 指令名:", name, "指令内容:", body)
 }
 
-func (tp *TestPlugin2) Config(body string) {
-	fmt.Println("[CONFIG] ", body)
-}
-
 func (tp *TestPlugin2) Entry(config *af.Config, notify *af.Notify, logger af.Logger) error {
 	// 直接获取配置
 	cfg, err := notify.GetConfig(tp.Name())

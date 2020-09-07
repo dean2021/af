@@ -14,9 +14,6 @@ type Plugin interface {
 	// 收到指令被动调用
 	Command(name string, body string)
 
-	// 收到config变更被动调用
-	Config(body string)
-
 	// 插件入口函数
 	Entry(config *Config, notify *Notify, logger Logger) error
 }
