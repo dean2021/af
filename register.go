@@ -28,7 +28,6 @@ func doRegister(agent *Agent) error {
 		return err
 	}
 	client := &http.Client{}
-	fmt.Println(string(systemInfo))
 	req, err := http.NewRequest("POST", agent.Config.Get("system.register.api"), bytes.NewBuffer(systemInfo))
 	if err != nil {
 		return err
