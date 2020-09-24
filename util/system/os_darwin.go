@@ -9,22 +9,11 @@ package system
 import (
 	"bytes"
 	"golang.org/x/sys/unix"
-	"io/ioutil"
 	"runtime"
-	"strings"
 )
 
 func GetPlatform() string {
-	b, err := ioutil.ReadFile("/etc/redhat-release")
-	if err != nil {
-		b, err = ioutil.ReadFile("/etc/issue")
-		if err != nil {
-			return runtime.GOOS
-		}
-	}
-	platform := strings.Replace(string(b), "\\n \\l", "", -1)
-	platform = strings.TrimSpace(platform)
-	return platform
+	return runtime.GOOS
 }
 
 func GetVersion() string {

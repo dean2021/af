@@ -3,7 +3,7 @@
 
 ### 系统配置
 
-1. system.max_memory ： 设置最大占用内容, 默认100m
+1. system.max_memory ： 设置最大占用内存, 默认100m
 2. system.max_cpu_quota : 设置最大cpu使用率， 默认10%
 3. system.max_load_limit : 设置系统负载自杀阈值，默认0.7
 4. system.register.api ： agent注册api地址, 必填
@@ -26,11 +26,9 @@
 - [x] 统一日志
 - [x] 插件扩展
 - [x] 统一注册
-- [x] 统一日志
 - [x] 服务注册
 - [ ] 进程守护
 - [ ] 升级卸载
-- [ ] 进程守护
 - [x] 配置变更
 - [x] 指令通讯
 

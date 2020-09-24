@@ -4,7 +4,6 @@
 
 package af
 
-// 系统资源限制, mac下未实现
 func SystemResourceLimit(agent *Agent) error {
 	return nil
 }

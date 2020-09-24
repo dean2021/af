@@ -169,7 +169,7 @@ func (a *Agent) StartCommandWatch() {
 func (a *Agent) StartPlugin() {
 	for _, plugin := range a.plugins {
 		go func(p Plugin) {
-			a.logger.Println(p.Name() + "插件被启动")
+			//a.logger.Println(p.Name() + "插件被启动")
 			if err := p.Entry(a.Config, a.Notify, a.logger); err != nil {
 				a.logger.Fatalf("[%s]插件返回错误: %s", p.Name(), err.Error())
 			}
@@ -216,17 +216,13 @@ func setDefaultConfig(agent *Agent) {
 
 // 初始化
 func NewAgent(name string) *Agent {
-
 	var agent = &Agent{
 		Name:    name,
 		plugins: make(map[string]Plugin),
 		Config:  new(Config),
 	}
-
 	// 默认日志
 	agent.SetLogger(log.New(os.Stdout, "", log.LstdFlags))
-
 	setDefaultConfig(agent)
-
 	return agent
 }

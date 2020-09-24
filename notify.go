@@ -9,7 +9,7 @@ package af
 import (
 	"context"
 	"fmt"
-	strings2 "github.com/dean2021/af/util/stringsplus"
+	"github.com/dean2021/af/util/str"
 	"go.etcd.io/etcd/clientv3"
 	"log"
 	"strconv"
@@ -91,7 +91,7 @@ func (n *Notify) getRevision() (int64, error) {
 		return resp.Header.Revision + 1, nil
 	}
 	for _, ev := range resp.Kvs {
-		version, err := strings2.ByteToInt64(ev.Value)
+		version, err := str.ByteToInt64(ev.Value)
 		if err != nil {
 			continue
 		}

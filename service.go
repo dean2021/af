@@ -13,8 +13,7 @@ import (
 
 var services sync.Map
 
-type Service interface {
-}
+type Service interface{}
 
 func AddService(name string, service Service) {
 	services.Store(name, service)

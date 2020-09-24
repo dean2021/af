@@ -21,39 +21,15 @@ import (
 	"time"
 )
 
-// 创建并保存agent注册信息到文件中
-func createAgentRegisterInfoFile(tomlFile string, agent *Agent) error {
-	f, err := os.OpenFile(tomlFile, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
-	if err != nil {
-		return err
-	}
-	encoder := toml.NewEncoder(f)
-	err = encoder.Encode(agent)
-	return err
-}
-
 // 注册agent
-func register(agent *Agent) error {
-
-	type RegisterResult struct {
-		Id       string `json:"id"`
-		ServerId int    `json:"serverId"`
-		HostName string `json:"hostname"`
-	}
-
-	reqBody := map[string]interface{}{
-		"hostName":  system.GetHostName(),
-		"ipAddress": system.GetIPs(),
-		"mac":       system.GetMacAddrs(),
-	}
-
-	jsonByte, err := json.Marshal(reqBody)
+func doRegister(agent *Agent) error {
+	systemInfo, err := json.Marshal(system.GetSystemInfo())
 	if err != nil {
 		return err
 	}
-
 	client := &http.Client{}
-	req, err := http.NewRequest("POST", agent.Config.Get("system.register.api"), bytes.NewBuffer(jsonByte))
+	fmt.Println(string(systemInfo))
+	req, err := http.NewRequest("POST", agent.Config.Get("system.register.api"), bytes.NewBuffer(systemInfo))
 	if err != nil {
 		return err
 	}
@@ -62,38 +38,35 @@ func register(agent *Agent) error {
 	if err != nil {
 		return err
 	}
-
 	if resp.Body == nil {
 		return errors.New("接口返回内容为空")
 	}
 	defer resp.Body.Close()
-
 	if resp.StatusCode != 200 {
 		return errors.New("接口返回状态码非200: " + resp.Status)
 	}
-
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
-
-	serverResp := &struct {
-		Success bool           `json:"success"`
-		Code    int            `json:"code"`
-		Message string         `json:"message"`
-		Result  RegisterResult `json:"result"`
+	result := &struct {
+		Success bool   `json:"success"`
+		Code    int    `json:"code"`
+		Message string `json:"message"`
+		Result  struct {
+			Id       string `json:"id"`
+			ServerId int    `json:"serverId"`
+			HostName string `json:"hostname"`
+		} `json:"result"`
 	}{}
-
-	err = json.Unmarshal(body, serverResp)
+	err = json.Unmarshal(body, result)
 	if err != nil {
 		return fmt.Errorf("接口返回格式错误: %v", err)
 	}
-
-	if serverResp.Success == false || serverResp.Code != 200 {
-		return fmt.Errorf("接口返回错误提示:%s", serverResp.Message)
+	if result.Success == false || result.Code != 200 {
+		return fmt.Errorf("接口返回错误提示:%s", result.Message)
 	}
-
-	agent.ID = serverResp.Result.Id
+	agent.ID = result.Result.Id
 	return nil
 }
 
@@ -111,14 +84,12 @@ func Register(agent *Agent) error {
 	if err != nil && !os.IsNotExist(err) {
 		return err
 	}
-
 	// 首次注册
 	if err != nil && os.IsNotExist(err) {
-
 		// 向服务端注册agent
 		err := retry.Do(
 			func() error {
-				return register(agent)
+				return doRegister(agent)
 			},
 			retry.Attempts(3),
 			retry.Delay(time.Second),
@@ -131,7 +102,12 @@ func Register(agent *Agent) error {
 			return err
 		}
 		// 注册成功后创建agent info文件
-		return createAgentRegisterInfoFile(agentFilePath, agent)
+		f, err := os.OpenFile(agentFilePath, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+		if err != nil {
+			return err
+		}
+		encoder := toml.NewEncoder(f)
+		return encoder.Encode(agent)
 	}
 	return nil
 }

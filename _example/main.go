@@ -10,8 +10,6 @@ import (
 	"github.com/dean2021/af/_example/plugin"
 	"github.com/sirupsen/logrus"
 	"log"
-	"path"
-	"time"
 )
 
 func main() {
@@ -64,7 +62,7 @@ func main() {
 	//af.AddService("grpc", new(service.DataService))
 
 	// 添加插件
-	agent.Plugin(new(plugin.TestPlugin))
+	agent.Plugin(new(plugin.TestPlugin2))
 	//agent.Plugin(new(plugin.TestService))
 
 	// 替换日志组件
@@ -72,17 +70,11 @@ func main() {
 	// 设置日志格式
 	l.SetFormatter(&logger.JSONFormatter{})
 	// 添加log http hook
-	l.AddHook(logger.NewHttpHook(logrus.AllLevels, &logger.JSONFormatter{}, "http://www.baidu.com/api/hostsecurity/agentLog/add"))
-	// 添加log滚动文件切割hook
-	hook, err := logger.NewRotateHook(path.Join("./", "logs"), "debug.log", time.Hour*24, time.Second*60)
-	if err != nil {
-		panic(err)
-	}
-	l.AddHook(hook)
+	l.AddHook(logger.NewHttpHook(logrus.AllLevels, &logger.JSONFormatter{}, "http://127.0.0.1:2333/api/hostsecurity/agentLog/add"))
 	agent.SetLogger(l)
 
 	// 运行agent
-	err = agent.Run()
+	err := agent.Run()
 	if err != nil {
 		log.Fatal(err)
 	}
