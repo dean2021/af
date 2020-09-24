@@ -79,34 +79,26 @@ func Register(agent *Agent) error {
 	if err != nil {
 		return err
 	}
-	_, err = toml.DecodeFile(agentFilePath, agent)
-	if err != nil && !os.IsNotExist(err) {
+	// 向服务端注册agent
+	err = retry.Do(
+		func() error {
+			return doRegister(agent)
+		},
+		retry.Attempts(3),
+		retry.Delay(time.Second),
+		retry.LastErrorOnly(false),
+		retry.OnRetry(func(n uint, err error) {
+			agent.logger.Printf("Registration failed#%d: %s\n", n, err)
+		}),
+	)
+	if err != nil {
 		return err
 	}
-	// 首次注册
-	if err != nil && os.IsNotExist(err) {
-		// 向服务端注册agent
-		err := retry.Do(
-			func() error {
-				return doRegister(agent)
-			},
-			retry.Attempts(3),
-			retry.Delay(time.Second),
-			retry.LastErrorOnly(false),
-			retry.OnRetry(func(n uint, err error) {
-				agent.logger.Printf("Registration failed#%d: %s\n", n, err)
-			}),
-		)
-		if err != nil {
-			return err
-		}
-		// 注册成功后创建agent info文件
-		f, err := os.OpenFile(agentFilePath, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
-		if err != nil {
-			return err
-		}
-		encoder := toml.NewEncoder(f)
-		return encoder.Encode(agent)
+	// 注册成功后创建agent info文件
+	f, err := os.OpenFile(agentFilePath, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
 	}
-	return nil
+	encoder := toml.NewEncoder(f)
+	return encoder.Encode(agent)
 }
